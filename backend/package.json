@@ -1,0 +1,20 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "a smart menu website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "digital",
+    "menu",
+    "smart",
+    "menu",
+    "hotels",
+    "github",
+    "backend"
+  ],
+  "author": "m sadanand",
+  "license": "ISC"
+}
