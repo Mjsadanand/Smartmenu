@@ -19,16 +19,35 @@ passport.use(new GoogleStrategy({
   callbackURL: process.env.GOOGLE_CALLBACK_URL
 },
   async (accessToken, refreshToken, profile, done) => {
-    let user = await User.findOne({ googleId: profile.id });
+    try {
+      // Check if user with googleId already exists
+      let user = await User.findOne({ googleId: profile.id });
 
-    if (!user) {
+      if (user) {
+        return done(null, user);
+      }
+
+      // Check if username already exists (e.g., someone registered manually with same displayName)
+      const existingUsername = await User.findOne({ username: profile.displayName });
+
+      // If yes, append random number to avoid duplicate
+      let uniqueUsername = profile.displayName;
+      if (existingUsername) {
+        uniqueUsername = `${profile.displayName}_${Math.floor(Math.random() * 10000)}`;
+      }
+
+      // Now create user safely
       user = await new User({
         googleId: profile.id,
-        username: profile.displayName,
+        username: uniqueUsername,
         email: profile.emails[0].value
       }).save();
-    }
 
-    done(null, user);
+      done(null, user);
+    } catch (err) {
+      console.error('Google Strategy Error:', err);
+      done(err, null);
+    }
   }
 ));
+

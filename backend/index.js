@@ -2,7 +2,8 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import passport from 'passport';
-import cookieSession from 'cookie-session';
+// import cookieSession from 'cookie-session';
+import session from 'express-session';
 
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
@@ -24,10 +25,17 @@ app.use(cors({
 }));
 
 // Cookie session setup
-app.use(cookieSession({
-  name: 'session',
-  keys: [process.env.COOKIE_KEY],
-  maxAge: 24 * 60 * 60 * 1000, // 1 day
+// app.use(cookieSession({
+//   name: 'session',
+//   keys: [process.env.COOKIE_KEY],
+//   maxAge: 24 * 60 * 60 * 1000, // 1 day
+// }));
+
+
+app.use(session({
+  secret: process.env.COOKIE_KEY,
+  resave: false,
+  saveUninitialized: false
 }));
 
 app.use(passport.initialize());
