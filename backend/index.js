@@ -8,6 +8,8 @@ import session from 'express-session';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import './passport/googleStrategy.js';
+import restaurantRoutes from './routes/restaurantRoutes.js';
+import menuRoutes from './routes/menuRoutes.js';
 
 dotenv.config();
 
@@ -20,16 +22,9 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: 'http://localhost:5173', // React frontend URL
+  origin: 'http://localhost:5173', 
   credentials: true,
 }));
-
-// Cookie session setup
-// app.use(cookieSession({
-//   name: 'session',
-//   keys: [process.env.COOKIE_KEY],
-//   maxAge: 24 * 60 * 60 * 1000, // 1 day
-// }));
 
 
 app.use(session({
@@ -43,6 +38,8 @@ app.use(passport.session());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/restaurants', restaurantRoutes);
+app.use('/api/menu', menuRoutes);
 
 app.get('/', (req, res) => res.send('Server is running!'));
 
