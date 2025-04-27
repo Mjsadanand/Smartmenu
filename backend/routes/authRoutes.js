@@ -17,8 +17,8 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
   try {
     const user = await User.findOne({ googleId: req.user.googleId });
     if (user) {
-      const id = user.username; 
-      res.redirect(`http://localhost:5173/restaurant/${id}`);
+      const username = user.username; 
+      res.redirect(`http://localhost:5173/restaurant/${username}`); // Redirect to the user's restaurant page
     } else {
       res.redirect('/login/failed');
     }

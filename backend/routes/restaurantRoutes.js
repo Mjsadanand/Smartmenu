@@ -7,22 +7,17 @@ const router = express.Router();
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
+  destination: (req, file, cb) => cb(null, 'uploads'),
   filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
 });
 const upload = multer({ storage });
 
-// Middleware to populate req.user
-router.use(async (req, res, next) => {
-  const username = req.user?.username;
-  if (username) {
-    const user = await User.findOne({ username });
-    if (user) {
-      req.user._id = user._id;
-    }
-  }
-  next();
-});
+// router.use((req, res, next) => {
+//   if (!req.user?.username) {
+//     return res.status(401).json({ msg: 'User not authenticated' });
+//   }
+//   next();
+// });
 
 // Create restaurant
 router.post('/add', upload.single('image'), async (req, res) => {
@@ -30,7 +25,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
     const { name, location, contactNumber } = req.body;
     const imageUrl = `/uploads/${req.file.filename}`;
     const newRestaurant = new Restaurant({
-      userId: req.user._id,
+      username: req.user.username,
       name,
       location,
       contactNumber,
@@ -44,18 +39,73 @@ router.post('/add', upload.single('image'), async (req, res) => {
   }
 });
 
-// Get user's restaurant
+// Get user's restaurants
 router.get('/my', async (req, res) => {
-  const restaurant = await Restaurant.findOne({ userId: req.user._id });
-  if (!restaurant) return res.status(404).json({ msg: 'Restaurant not found' });
-  res.json(restaurant);
+  try {
+    const restaurants = await Restaurant.find({ username: req.user.username });
+    res.json(restaurants);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
 });
 
-// Public menu access
+// Update restaurant
+router.put('/update/:id', upload.single('image'), async (req, res) => {
+  try {
+    const { name, location, contactNumber } = req.body;
+    const updateData = { name, location, contactNumber };
+
+    if (req.file) {
+      updateData.imageUrl = `/uploads/${req.file.filename}`;
+    }
+
+    const updatedRestaurant = await Restaurant.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedRestaurant) {
+      return res.status(404).json({ msg: 'Restaurant not found' });
+    }
+
+    res.json(updatedRestaurant);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// Delete restaurant
+router.delete('/delete/:id', async (req, res) => {
+  try {
+    const deletedRestaurant = await Restaurant.findByIdAndDelete(req.params.id);
+
+    if (!deletedRestaurant) {
+      return res.status(404).json({ msg: 'Restaurant not found' });
+    }
+
+    res.json({ msg: 'Restaurant deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
 router.get('/:username', async (req, res) => {
-  const restaurant = await Restaurant.findOne({ ownerId: req.params.username });
-  if (!restaurant) return res.status(404).json({ msg: 'Restaurant not found' });
-  res.json(restaurant);
+  try {
+    const user = await User.findOne({ username: req.params.username });
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    const restaurants = await Restaurant.find({ username: user.username }); // Fetch all restaurants for the user
+    if (!restaurants.length) return res.status(404).json({ msg: 'No restaurants found for this user' });
+
+    res.json(restaurants);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
 });
 
 export default router;

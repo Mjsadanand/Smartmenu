@@ -4,12 +4,14 @@ import cors from 'cors';
 import passport from 'passport';
 // import cookieSession from 'cookie-session';
 import session from 'express-session';
-
+import path from 'path';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import './passport/googleStrategy.js';
 import restaurantRoutes from './routes/restaurantRoutes.js';
 import menuRoutes from './routes/menuRoutes.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 dotenv.config();
 
@@ -36,9 +38,14 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Define __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/restaurants', restaurantRoutes);
+app.use('/api/restaurant', restaurantRoutes);
 app.use('/api/menu', menuRoutes);
 
 app.get('/', (req, res) => res.send('Server is running!'));
