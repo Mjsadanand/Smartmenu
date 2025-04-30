@@ -39,7 +39,9 @@ const MyRestaurants = () => {
 
   const handleDeleteRestaurant = async (restaurantId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/restaurant/delete/${restaurantId}`);
+      await axios.delete(`http://localhost:5000/api/restaurant/delete/${restaurantId}`, {
+        withCredentials: true, 
+      });
       setRestaurants(restaurants.filter((r) => r._id !== restaurantId));
       alert('Restaurant deleted successfully!');
     } catch (error) {
@@ -47,6 +49,7 @@ const MyRestaurants = () => {
       alert('Failed to delete restaurant');
     }
   };
+  
 
   const handleEditClick = (restaurant) => {
     setEditRestaurant(restaurant);
