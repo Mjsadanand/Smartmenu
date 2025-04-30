@@ -15,7 +15,9 @@ const MyRestaurants = () => {
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/restaurant/${username}`); // Fetch restaurants for the specific user
+        const res = await axios.get(`http://localhost:5000/api/restaurant/${username}`, {
+          withCredentials: true, // Ensure cookies are sent with the request
+        });
         setRestaurants(res.data);
       } catch (error) {
         console.error('Error fetching restaurants:', error);

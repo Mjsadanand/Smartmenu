@@ -6,10 +6,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 passport.serializeUser((user, done) => {
-  done(null, user.id);
+  done(null, user.username);
 });
-passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id);
+
+passport.deserializeUser(async (username, done) => {
+  const user = await User.findOne({ username });
   done(null, user);
 });
 

@@ -2,6 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import Restaurant from '../models/Restaurant.js';
 import User from '../models/User.js';
+import passport from 'passport';
 
 const router = express.Router();
 
@@ -12,16 +13,24 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// router.use((req, res, next) => {
-//   if (!req.user?.username) {
-//     return res.status(401).json({ msg: 'User not authenticated' });
-//   }
-//   next();
-// });
+router.use(passport.authenticate('session'));
+
+router.use((req, res, next) => {
+  console.log('Session:', req.session); 
+  console.log('req.user:', req.user); 
+  if (!req.user?.username) {
+    return res.status(401).json({ msg: 'User not authenticated' });
+  }
+  next();
+});
 
 // Create restaurant
 router.post('/add', upload.single('image'), async (req, res) => {
   try {
+    if (!req.user?.username) {
+      return res.status(401).json({ msg: 'User not authenticated' });
+    }
+
     const { name, location, contactNumber } = req.body;
     const imageUrl = `/uploads/${req.file.filename}`;
     const newRestaurant = new Restaurant({
@@ -29,7 +38,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
       name,
       location,
       contactNumber,
-      imageUrl
+      imageUrl,
     });
     await newRestaurant.save();
     res.status(201).json(newRestaurant);
@@ -38,6 +47,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
     res.status(500).json({ msg: 'Server error' });
   }
 });
+
 
 // Get user's restaurants
 router.get('/my', async (req, res) => {

@@ -178,7 +178,9 @@ body {
   flex-direction: column;
   gap: 15px;
 }
-
+.popup-form h2{
+  color: #000;
+}
 .popup-form input {
   padding: 10px;
   border: 1px solid #ccc;
