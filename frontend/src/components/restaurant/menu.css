@@ -1,0 +1,133 @@
+/* General container styles */
+.menu-container {
+  display: flex;
+  gap: 2rem;
+  background: #0e0b0b;
+  color: #e3dfdb;
+  padding: 2rem;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.header, .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Buttons */
+.btn {
+  background: #704146;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: #b5636c;
+}
+
+.btn.full {
+  width: 100%;
+}
+
+.btn.small {
+  padding: 0.3rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+/* Menu section styles */
+.menu-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.menu-card {
+  background: #b74f5d;
+  padding: 1rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.menu-card.active {
+  outline: 2px solid #e3dfdb;
+}
+
+/* Category section styles */
+.category-section {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.category-card {
+  background: #1c1616;
+  padding: 1rem;
+  border-radius: 1rem;
+}
+
+.category-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Items grid styles */
+.items-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.item-card {
+  display: flex;
+  flex-direction: row;
+  background: #2a2020;
+  padding: 1rem;
+  border-radius: 1rem;
+  width: 800px;
+}
+
+.item-card img {
+  width: 10%;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.price {
+  color: #dd3d3d;
+}
+.dots {
+  position: relative;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.dropdown {
+  position: absolute;
+  width: 50px;
+  top: 1.5rem;
+  right: 0;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  padding: 0.5rem;
+  border-radius: 4px;
+  z-index: 10;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.menu-header, .category-title, .item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
