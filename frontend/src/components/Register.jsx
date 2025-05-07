@@ -22,6 +22,7 @@ const Register = () => {
     try {
       const res = await API.post('/auth/register', form);
       alert('Registered Successfully!');
+      window.location.href = '/login';
     } catch (err) {
       alert(err.response?.data?.message || 'Registration failed');
     }

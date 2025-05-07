@@ -6,6 +6,7 @@ import MyRestaurants from "./components/restaurant/MyRestaurants.jsx"
 import MenuCreation from "./components/restaurant/MenuCreation.jsx"
 import RestaurantMenu from "./components/menu/RestaurantMenu.jsx"
 import CookieConsent from "react-cookie-consent";
+import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
 
 function App() {
 
@@ -33,9 +34,31 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/restaurant/:username" element={<MyRestaurants />} />
-        <Route path="/restaurant/:username/menu/:restaurantId" element={<MenuCreation />} />
-        <Route path="/menu/:menuId" element={<RestaurantMenu />} />
+        {/* Protected Routes */}
+        <Route
+          path="/restaurant/:username"
+          element={
+            <ProtectedRoute>
+              <MyRestaurants />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/restaurant/:username/menu/:restaurantId"
+          element={
+            <ProtectedRoute>
+              <MenuCreation />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/menu/:menuId"
+          element={
+            <ProtectedRoute>
+              <RestaurantMenu />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   )
