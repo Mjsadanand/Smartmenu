@@ -4,6 +4,15 @@ import styled from 'styled-components';
 import API from '../api';
 import backgroundImage from '../assets/reg.jpg';
 
+// Add a default header to include the token in all API requests
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 const Login = () => {
   const [form, setForm] = useState({
     identifier: '',
@@ -14,13 +23,19 @@ const Login = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await API.post('/auth/login', form);
+      const { token, user } = res.data;
+
+      // Save the token in local storage
+      localStorage.setItem('token', token);
+
       alert('Logged In!');
+      window.location.href = `/restaurant/${user.username}`; // Redirect to the user's restaurant page
     } catch (err) {
-      alert(err.response?.data?.message || 'Login failed');
+      alert(err.response?.data?.msg || 'Login failed');
     }
   };
 

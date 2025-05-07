@@ -1,0 +1,283 @@
+/* Base styles (default for desktop) */
+.restaurant-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  background-color: #111;
+}
+
+/* Restaurant header with background image */
+.restaurant-header {
+  position: relative;
+  height: 300px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Overlay for text */
+.restaurant-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Dark overlay for better text visibility */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1;
+}
+
+.restaurant-overlay h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.restaurant-overlay p {
+  font-size: 16px;
+  margin: 5px 0;
+}
+
+
+
+/* Ensure the menu section starts below the header */
+.menu-section {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.menu-section h3 {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+/* Grid layout for categories */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjust column width */
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Category navigation buttons */
+.category-navigation {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.category-button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  color: #cac0c0;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.category-button.active {
+  background-color: #333;
+  border-bottom:2px solid #fff;
+  color: #fff;
+}
+
+/* Grid layout for items */
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust item width */
+  gap: 15px;
+}
+
+.menu-item {
+  background: #fafafa;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.menu-item:hover {
+  transform: translateY(-5px);
+}
+
+.menu-item img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.item-details {
+  padding: 10px 15px;
+}
+
+.item-details h5 {
+  margin: 0;
+  font-size: 18px;
+  color: #000;
+}
+
+.item-details p {
+  font-size: 14px;
+  margin: 5px 0;
+  color: #666;
+}
+
+.item-details span {
+  font-weight: bold;
+  color: #222;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.modal-content h2 {
+  margin: 15px 0 5px;
+  color: #000;
+}
+
+.modal-content p {
+  font-size: 14px;
+  color: #444;
+  margin: 10px 0;
+}
+
+.price-tag {
+  display: inline-block;
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #111;
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Responsive styles */
+
+/* For tablets (768px and above) */
+@media (max-width: 1024px) {
+  .restaurant-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .restaurant-header img {
+    margin-bottom: 15px;
+  }
+
+  .restaurant-details {
+    margin-left: 0;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .item-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+/* For phones (480px and below) */
+@media (max-width: 480px) {
+  .restaurant-container {
+    padding: 10px;
+  }
+
+  .restaurant-header img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .restaurant-details h2 {
+    font-size: 20px;
+  }
+
+  .restaurant-details p {
+    font-size: 12px;
+  }
+
+  .category-navigation {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .category-button {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .category-grid {
+    grid-template-columns: 1fr; /* Single column for small screens */
+  }
+
+  .item-grid {
+    grid-template-columns: 1fr; /* Single column for small screens */
+  }
+
+  .menu-item img {
+    height: 120px;
+  }
+
+  .item-details h5 {
+    font-size: 16px;
+  }
+
+  .item-details p {
+    font-size: 12px;
+  }
+
+  .item-details span {
+    font-size: 14px;
+  }
+}

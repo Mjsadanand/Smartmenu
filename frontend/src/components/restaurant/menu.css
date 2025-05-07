@@ -1,18 +1,60 @@
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #141313;
+  height: 60px;
+}
+
+.back-button {
+  font-weight: bold;
+  color: #007bff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.icon-group {
+  display: flex;
+  gap: 15px;
+}
+
+.icon {
+  font-size: 24px;
+  color: #6e6e6e;
+  cursor: pointer;
+}
+
+.divider {
+  border: none;
+  height: 1px;
+  background-color: #ccc;
+}
+
 /* General container styles */
 .menu-container {
   display: flex;
+  flex-direction: row;
   gap: 2rem;
-  background: #0e0b0b;
   color: #e3dfdb;
-  padding: 2rem;
+  background-color: black;
+  padding: 1rem 2rem; /* Reduce top padding */
   min-height: 100vh;
   font-family: 'Segoe UI', sans-serif;
+  margin-top: 0; /* Remove any extra margin */
+  align-items: flex-start; /* Align menu and category sections to the top */
 }
 
 .header, .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+/* Adjust the horizontal line spacing */
+.divider {
+  margin: 0; /* Remove default margin */
+  border: 1px solid #444; /* Optional: Adjust the line style */
 }
 
 /* Buttons */
@@ -37,18 +79,26 @@
 .btn.small {
   padding: 0.3rem 0.8rem;
   font-size: 0.9rem;
+  margin: 0.5rem;
 }
 
-/* Menu section styles */
+/* Menu list styles */
 .menu-list {
   flex: 1;
   display: flex;
+  width: 600px;
   flex-direction: column;
   gap: 1rem;
+  background-color: #1c1c1c;
+  padding: 1rem;
+  border-radius: 1rem;
+  max-width: 400px;
 }
 
+/* Ensure the menu card is the positioning context */
 .menu-card {
-  background: #b74f5d;
+  position: relative; /* Make the menu card the positioning context */
+  background: #ed243f;
   padding: 1rem;
   border-radius: 1rem;
   cursor: pointer;
@@ -59,51 +109,109 @@
   outline: 2px solid #e3dfdb;
 }
 
+/* Position the 3 dots inside the menu card */
+.menu-card .dots {
+  position: absolute; /* Position relative to the menu card */
+  top: 10px; /* Adjust vertical position */
+  right: 10px; /* Adjust horizontal position */
+  cursor: pointer;
+  z-index: 10; /* Ensure it appears above other elements */
+}
+
+/* Dropdown styles for the 3 dots */
+.menu-card .dropdown {
+  position: absolute;
+  top: 30px; /* Position below the 3 dots */
+  right: 10px; /* Align with the 3 dots */
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 20; /* Ensure it appears above other elements */
+  padding: 5px 0;
+  display: none; /* Initially hidden */
+}
+
+/* Dropdown items */
+.menu-card .dropdown div {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.menu-card .dropdown div:hover {
+  background-color: #444; /* Highlight on hover */
+}
+
+/* Show dropdown when active */
+.menu-card .dots:hover + .dropdown,
+.menu-card .dropdown:hover {
+  display: block; /* Show the dropdown when hovering over the 3 dots or dropdown */
+}
+
 /* Category section styles */
 .category-section {
   flex: 2;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-.category-card {
-  background: #1c1616;
+  background-color: #1c1616;
   padding: 1rem;
   border-radius: 1rem;
 }
 
-.category-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.category-card {
+  background: #2a2020;
+  padding: 1rem;
+  border-radius: 1rem;
 }
 
 /* Items grid styles */
 .items-grid {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Arrange items in rows */
   gap: 1rem;
-  margin-top: 1rem;
 }
 
 .item-card {
   display: flex;
-  flex-direction: row;
-  background: #2a2020;
+  flex-direction: row; /* Arrange content in a row */
+  background: #2a2a2a;
   padding: 1rem;
   border-radius: 1rem;
-  width: 800px;
+  width: 100%; /* Full width for each row */
+  box-sizing: border-box;
+  align-items: center; /* Align items vertically */
 }
 
 .item-card img {
-  width: 10%;
+  width: 60px; /* Fixed width for the image */
+  height: 60px; /* Fixed height for the image */
   border-radius: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-right: 1rem; /* Add spacing between image and content */
+  object-fit: cover; /* Ensure the image fits within the fixed dimensions */
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column; /* Arrange title, price, and description in a column */
+  gap: 0.5rem;
+}
+
+.item-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #e3dfdb;
 }
 
 .price {
   color: #dd3d3d;
+  font-size: 1rem;
+}
+
+.description {
+  font-size: 0.9rem;
+  color: #ccc;
 }
 .dots {
   position: relative;
@@ -130,4 +238,155 @@
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
+}
+
+/* menu.css */
+.loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #ccc;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.modal-overlay {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 1000px;
+  background-color: #1c1c1c;
+  color: #e3dfdb;
+  padding: 2rem;
+  border-radius: 1rem;
+  animation: fadeIn 0.3s ease-in-out;
+  text-align: center;
+}
+
+/* Keyframe animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+.modal-close:hover {
+  color: #dd3d3d;
+}
+
+/* Body */
+.modal-body {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+/* Footer Buttons */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.modal-footer .btn {
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+}
+
+/* QR Code Centered and Responsive */
+#qr-code {
+  margin: 1rem auto;
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+}
+
+/* Eye icon */
+.eye-icon {
+  margin-top: 0.5rem;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.eye-icon:hover {
+  background-color: #4e564e;
+}
+
+/* Long URL hyperlink */
+.modal-content a {
+  display: block;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  text-decoration: underline;
+}
+
+
+/* Responsive Tweaks */
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 1.5rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .btn.small {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 1rem;
+  }
+
+  .modal-content h3 {
+    font-size: 1.3rem;
+  }
 }

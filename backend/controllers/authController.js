@@ -20,7 +20,7 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { identifier, password } = req.body; // identifier can be email or username
+  const { identifier, password } = req.body;
 
   const user = await User.findOne({
     $or: [{ email: identifier }, { username: identifier }]
@@ -31,9 +31,15 @@ export const login = async (req, res) => {
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) return res.status(400).json({ msg: 'Invalid credentials' });
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: '1d'
-  });
+  // Generate JWT token with username
+  const token = jwt.sign(
+    { id: user._id, username: user.username },
+    process.env.JWT_SECRET,
+    { expiresIn: '1d' }
+  );
 
-  res.status(200).json({ token, user: { id: user._id, username: user.username, email: user.email } });
+  res.status(200).json({
+    token,
+    user: { id: user._id, username: user.username, email: user.email }
+  });
 };

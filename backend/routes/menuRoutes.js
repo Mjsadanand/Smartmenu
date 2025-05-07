@@ -1,8 +1,11 @@
 import express from 'express';
 import multer from 'multer';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import mongoose from 'mongoose';
 import { v2 as cloudinary } from 'cloudinary';
 import Menu from '../models/MenuItem.js';
+import Restaurant from '../models/Restaurant.js';
+import { Types } from 'mongoose';
 
 const router = express.Router();
 
@@ -54,6 +57,7 @@ router.get('/:restaurantId', async (req, res) => {
     res.status(500).json({ msg: 'Failed to fetch menus' });
   }
 });
+
 
 // Add a category to a menu
 router.post('/:menuId/category', async (req, res) => {
@@ -108,7 +112,17 @@ router.delete('/:menuId/category/:categoryId', async (req, res) => {
       return res.status(404).json({ msg: 'Menu not found' });
     }
 
-    menu.categories.id(req.params.categoryId).remove(); // Remove the category
+    // Find the index of the category to delete
+    const categoryIndex = menu.categories.findIndex(
+      (category) => category._id.toString() === req.params.categoryId
+    );
+    if (categoryIndex === -1) {
+      return res.status(404).json({ msg: 'Category not found' });
+    }
+
+    // Remove the category from the array
+    menu.categories.splice(categoryIndex, 1);
+
     await menu.save();
 
     res.json({ msg: 'Category deleted successfully', menu });
@@ -218,6 +232,88 @@ router.delete('/:menuId/category/:categoryId/item/:itemId', async (req, res) => 
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Failed to delete item' });
+  }
+});
+
+// Delete a menu
+router.delete('/:menuId', async (req, res) => {
+  try {
+    const menu = await Menu.findById(req.params.menuId);
+    if (!menu) {
+      return res.status(404).json({ msg: 'Menu not found' });
+    }
+
+    await Menu.deleteOne({ _id: req.params.menuId }); // Use deleteOne instead of remove
+
+    res.json({ msg: 'Menu deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Failed to delete menu' });
+  }
+});
+
+// Toggle publish status of a menu
+router.put('/:menuId/publish', async (req, res) => {
+  try {
+    const menu = await Menu.findById(req.params.menuId);
+    if (!menu) {
+      return res.status(404).json({ msg: 'Menu not found' });
+    }
+
+    menu.published = !menu.published; // Toggle the published status
+    await menu.save();
+
+    res.json({ msg: `Menu ${menu.published ? 'published' : 'unpublished'} successfully`, menu });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Failed to update publish status' });
+  }
+});
+
+router.get('/:menuId/view', async (req, res) => {
+  try {
+    console.log('Fetching menu with ID:', req.params.menuId); // Debug log
+
+    // Check if the menuId is valid
+    if (!mongoose.Types.ObjectId.isValid(req.params.menuId)) {
+      console.log('Invalid menu ID');
+      return res.status(400).json({ message: 'Invalid menu ID' });
+    }
+
+    const menu = await Menu.findOne({ _id: new mongoose.Types.ObjectId(req.params.menuId) });
+
+    if (!menu) {
+      console.log('Menu not found');
+      return res.status(404).json({ message: 'Menu not found' });
+    }
+
+    console.log('Fetched menu:', JSON.stringify(menu, null, 2)); // Debug log
+    res.json(menu); // Return the menu object
+  } catch (err) {
+    console.error('Error fetching menu:', err); // Debug log
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get restaurant details by menuId
+router.get('/:menuId/restaurant', async (req, res) => {
+  try {
+    // Step 1: Fetch the menu by menuId
+    const menu = await Menu.findById(req.params.menuId);
+    if (!menu) {
+      return res.status(404).json({ msg: 'Menu not found' });
+    }
+
+    // Step 2: Use the restaurantId from the menu to fetch the restaurant
+    const restaurant = await Restaurant.findById(menu.restaurantId);
+    if (!restaurant) {
+      return res.status(404).json({ msg: 'Restaurant not found' });
+    }
+
+    res.json(restaurant);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Failed to fetch restaurant details' });
   }
 });
 

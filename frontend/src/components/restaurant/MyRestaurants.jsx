@@ -4,13 +4,25 @@ import axios from 'axios';
 import RestaurantCard from './RestaurantCard';
 import RestaurantPopup from './RestaurantPopup';
 import './restaurant.css';
+import { FaBell, FaUserCircle, FaPlus } from 'react-icons/fa';
 
 const MyRestaurants = () => {
   const { username } = useParams(); // Extract username from the URL
   const navigate = useNavigate(); // For navigation
   const [restaurants, setRestaurants] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
+  const [showPopup, setShowPopup] = useState(false); // For restaurant popup
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false); // For profile dropdown
   const [editRestaurant, setEditRestaurant] = useState(null);
+
+  // Determine the greeting based on the time of day
+  const getGreeting = () => {
+    const currentHour = new Date().getHours();
+    if (currentHour < 12) return 'Good Morning';
+    if (currentHour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  const greeting = getGreeting();
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -40,7 +52,7 @@ const MyRestaurants = () => {
   const handleDeleteRestaurant = async (restaurantId) => {
     try {
       await axios.delete(`http://localhost:5000/api/restaurant/delete/${restaurantId}`, {
-        withCredentials: true, 
+        withCredentials: true,
       });
       setRestaurants(restaurants.filter((r) => r._id !== restaurantId));
       alert('Restaurant deleted successfully!');
@@ -49,7 +61,6 @@ const MyRestaurants = () => {
       alert('Failed to delete restaurant');
     }
   };
-  
 
   const handleEditClick = (restaurant) => {
     setEditRestaurant(restaurant);
@@ -67,18 +78,34 @@ const MyRestaurants = () => {
   };
 
   return (
-    <div className="restaurant-container">
-      <header className="restaurant-header">
-        <div className="profile-section">
-          <i className="react-icons/fa/FaUserCircle profile-icon"></i>
-          <span className="username">
-            Welcome {username.replace(/[0-9_]/g, '')},
-          </span>
+    <div className="restaurant-container" >
+      {/* Updated Header */}
+      <div className="top-bar">
+        <span className="greeting">
+          {greeting}, {username.replace(/[0-9_]/g, '')}
+        </span>
+        <div className="icon-group">
+          <FaBell className="icon" title="Notifications" />
+          <div className="profile-dropdown">
+            <FaUserCircle
+              className="icon"
+              title="Profile"
+              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+            />
+            {showProfileDropdown && (
+              <div className="dropdown-menu">
+                <span className="dropdown-item">Profile</span>
+                <span className="dropdown-item logout" onClick={handleLogout}>
+                  Logout
+                </span>
+              </div>
+            )}
+          </div>
         </div>
-        <button className="logout-button" onClick={handleLogout}>
-          <i className="react-icons/fa/FaSignOutAlt"></i> Logout
-        </button>
-      </header>
+      </div>
+      <hr className="divider" />
+
+      {/* Restaurant Grid */}
       <div className="restaurant-grid">
         {Array.isArray(restaurants) &&
           restaurants.map((r) => (
@@ -91,7 +118,7 @@ const MyRestaurants = () => {
             />
           ))}
         <div className="add-restaurant-card" onClick={() => setShowPopup(true)}>
-          <i className="react-icons/fa/FaPlus"></i>
+          <FaPlus />
           <span>Add new restaurant</span>
         </div>
       </div>

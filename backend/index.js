@@ -12,6 +12,8 @@ import restaurantRoutes from './routes/restaurantRoutes.js';
 import menuRoutes from './routes/menuRoutes.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { checkConsent } from './middleware/consentMiddleware.js';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -28,6 +30,7 @@ app.use(cors({
   credentials: true, // Allow credentials (cookies)
 }));
 
+app.use(cookieParser());
 
 app.use(session({
   secret: process.env.COOKIE_KEY,
@@ -47,6 +50,11 @@ const __dirname = dirname(__filename);
 app.use('/api/auth', authRoutes);
 app.use('/api/restaurant', restaurantRoutes);
 app.use('/api/menu', menuRoutes);
+
+app.post('/api/store-interaction', checkConsent, (req, res) => {
+  // Store user interaction
+  res.json({ msg: 'Interaction stored' });
+});
 
 app.get('/', (req, res) => res.send('Server is running!'));
 

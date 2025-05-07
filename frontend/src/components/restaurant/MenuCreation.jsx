@@ -1,300 +1,473 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './menu.css';
 import Modal from './Modal.jsx';
 import { FiMoreVertical, FiEdit, FiTrash2 } from 'react-icons/fi';
+import { BsGlobe, BsEye } from 'react-icons/bs'; // Add the eye icon from react-icons
+import { QRCodeCanvas } from 'qrcode.react';
+import { jsPDF } from 'jspdf';
+import { useNavigate } from "react-router-dom";
+import { FaBell, FaUserCircle } from "react-icons/fa";
 
 const MenuCreation = () => {
-  const { username, restaurantId } = useParams();
+  const { restaurantId } = useParams();
+  const navigate = useNavigate();
+  // States
   const [menus, setMenus] = useState([]);
   const [selectedMenu, setSelectedMenu] = useState(null);
+  const [dropdownOpenId, setDropdownOpenId] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Modal visibility
   const [showMenuModal, setShowMenuModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showItemModal, setShowItemModal] = useState(false);
-  const [categoryName, setCategoryName] = useState('');
-  const [itemDetails, setItemDetails] = useState({
-    name: '',
-    price: '',
-    description: '',
-    image: null,
-  });
 
+  // Menu form
   const [menuForm, setMenuForm] = useState({ name: '', availableTime: '' });
+  const [isEditingMenu, setIsEditingMenu] = useState(false);
+
+  // Category form
+  const [categoryName, setCategoryName] = useState('');
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
+  const [isEditingCategory, setIsEditingCategory] = useState(false);
 
-  const [menuOptions, setMenuOptions] = useState(null);
-  const [categoryOptions, setCategoryOptions] = useState(null);
-  const [itemOptions, setItemOptions] = useState(null);
+  // Item form
+  const [itemDetails, setItemDetails] = useState({ name: '', price: '', description: '', image: null });
+  const [currentItemId, setCurrentItemId] = useState(null);
+  const [isEditingItem, setIsEditingItem] = useState(false);
 
+  const [showUrlPopup, setShowUrlPopup] = useState(false);
+  const [menuUrl, setMenuUrl] = useState('');
+
+  const handleShowUrlPopup = (menuId) => {
+    const url = `${window.location.origin}/menu/${menuId}`;
+    setMenuUrl(url);
+    setShowUrlPopup(true);
+  };
+
+  const closeUrlPopup = () => {
+    setShowUrlPopup(false);
+  };
+
+  // Fetch Menus
   useEffect(() => {
     axios
       .get(`http://localhost:5000/api/menu/${restaurantId}`)
-      .then((res) => setMenus(res.data))
+      .then((res) => {
+        setMenus(res.data);
+        if (!selectedMenu && res.data.length > 0) {
+          setSelectedMenu(res.data[0]); // Automatically select the first menu
+        }
+      })
       .catch((err) => console.error('Error fetching menus:', err));
-  }, [restaurantId]);
+  }, [restaurantId, selectedMenu]);
 
-  const handleAddMenu = async () => {
+  // Menu CRUD
+  const handleAddOrEditMenu = async () => {
+    setLoading(true); // Start loading
     try {
-      const res = await axios.post('http://localhost:5000/api/menu/', {
-        restaurantId,
-        name: menuForm.name,
-        availableTime: menuForm.availableTime,
-        categories: [],
-      });
-      setMenus([...menus, res.data]);
-      setMenuForm({ name: '', availableTime: '' });
-      setShowMenuModal(false);
+      if (isEditingMenu) {
+        await axios.put(`http://localhost:5000/api/menu/${selectedMenu._id}`, menuForm);
+      } else {
+        await axios.post(`http://localhost:5000/api/menu`, {
+          ...menuForm,
+          restaurantId,
+          categories: [],
+        });
+      }
+      window.location.reload(); // Reload the page
     } catch (err) {
-      console.error('Error adding menu:', err);
+      console.error('Error saving menu:', err);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   const handleDeleteMenu = async (menuId) => {
+    setLoading(true); // Start loading
     try {
       await axios.delete(`http://localhost:5000/api/menu/${menuId}`);
-      setMenus(menus.filter((m) => m._id !== menuId));
-      if (selectedMenu?._id === menuId) setSelectedMenu(null);
+      window.location.reload(); // Reload the page
     } catch (err) {
       console.error('Error deleting menu:', err);
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
+
+  const handleTogglePublish = async (menuId, isPublished) => {
+    setLoading(true); // Start loading
+    try {
+      const res = await axios.put(`http://localhost:5000/api/menu/${menuId}/publish`);
+      const updatedMenu = res.data.menu;
+      setMenus(menus.map((menu) => (menu._id === menuId ? updatedMenu : menu)));
+
+      // Show the popup only when transitioning from Unpublish to Publish
+      if (!isPublished && updatedMenu.published) {
+        handleShowUrlPopup(menuId); // Show URL popup if published
+      }
+    } catch (err) {
+      console.error('Error toggling publish status:', err);
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
+
+  // Category CRUD
+  const handleAddOrEditCategory = async () => {
+    setLoading(true); // Start loading
+    try {
+      const url = isEditingCategory
+        ? `http://localhost:5000/api/menu/${selectedMenu._id}/category/${currentCategoryId}`
+        : `http://localhost:5000/api/menu/${selectedMenu._id}/category`;
+      const method = isEditingCategory ? axios.put : axios.post;
+      await method(url, { name: categoryName });
+      window.location.reload(); // Reload the page
+    } catch (err) {
+      console.error('Error saving category:', err);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   const handleDeleteCategory = async (menuId, categoryId) => {
+    setLoading(true); // Start loading
     try {
-      const res = await axios.delete(
-        `http://localhost:5000/api/menu/${menuId}/category/${categoryId}`
-      );
-      setMenus(menus.map((m) => (m._id === menuId ? res.data : m)));
+      await axios.delete(`http://localhost:5000/api/menu/${menuId}/category/${categoryId}`);
+      window.location.reload(); // Reload the page
     } catch (err) {
       console.error('Error deleting category:', err);
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
+
+  // Item CRUD
+  const handleAddOrEditItem = async () => {
+    setLoading(true); // Start loading
+    const formData = new FormData();
+    Object.entries(itemDetails).forEach(([key, value]) => formData.append(key, value));
+
+    try {
+      const url = isEditingItem
+        ? `http://localhost:5000/api/menu/${selectedMenu._id}/category/${currentCategoryId}/item/${currentItemId}`
+        : `http://localhost:5000/api/menu/${selectedMenu._id}/category/${currentCategoryId}/item`;
+
+      const method = isEditingItem ? axios.put : axios.post;
+
+      await method(url, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      window.location.reload(); // Reload the page
+    } catch (err) {
+      console.error('Error saving item:', err);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   const handleDeleteItem = async (menuId, categoryId, itemId) => {
+    setLoading(true); // Start loading
     try {
-      const res = await axios.delete(
+      await axios.delete(
         `http://localhost:5000/api/menu/${menuId}/category/${categoryId}/item/${itemId}`
       );
-      setMenus(menus.map((m) => (m._id === menuId ? res.data : m)));
+      window.location.reload(); // Reload the page
     } catch (err) {
       console.error('Error deleting item:', err);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
-  const handleAddCategory = async () => {
-    if (!selectedMenu) return;
-    try {
-      const res = await axios.post(
-        `http://localhost:5000/api/menu/${selectedMenu._id}/category`,
-        { name: categoryName }
-      );
-      setMenus(menus.map((m) => (m._id === selectedMenu._id ? res.data : m)));
-      setCategoryName('');
-      setShowCategoryModal(false);
-    } catch (err) {
-      console.error('Error adding category:', err);
-    }
+  const handleDownloadQRImage = () => {
+    const canvas = document.getElementById('qr-code');
+    const pngUrl = canvas
+      .toDataURL('image/png')
+      .replace('image/png', 'image/octet-stream');
+    const link = document.createElement('a');
+    link.href = pngUrl;
+    link.download = 'menu-qr-code.png';
+    link.click();
   };
 
-  const handleAddItem = async () => {
-    if (!selectedMenu || !currentCategoryId) return;
-
-    const formData = new FormData();
-    formData.append('name', itemDetails.name);
-    formData.append('price', itemDetails.price);
-    formData.append('description', itemDetails.description);
-    formData.append('image', itemDetails.image);
-
-    try {
-      const res = await axios.post(
-        `http://localhost:5000/api/menu/${selectedMenu._id}/category/${currentCategoryId}/item`,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
-      );
-      setMenus(menus.map((m) => (m._id === selectedMenu._id ? res.data : m)));
-      setItemDetails({ name: '', price: '', description: '', image: null });
-      setShowItemModal(false);
-    } catch (err) {
-      console.error('Error adding item:', err);
-    }
+  const handleDownloadQRPDF = () => {
+    const canvas = document.getElementById('qr-code');
+    const pngUrl = canvas.toDataURL('image/png');
+    const pdf = new jsPDF();
+    pdf.addImage(pngUrl, 'PNG', 10, 10, 180, 180); // Adjust size and position
+    pdf.save('menu-qr-code.pdf');
   };
 
   return (
-    <div className="menu-container">
-      {/* Menu Section */}
-      <div className="menu-list">
-        <h2>Menus</h2>
-        {menus.map((menu) => (
-          <div
-            key={menu._id}
-            className={`menu-card ${selectedMenu?._id === menu._id ? 'active' : ''}`}
-            onClick={() => setSelectedMenu(menu)}
-          >
-            <div className="menu-header">
-              <div>
-                <h3>{menu.name}</h3>
-                <p>{menu.availableTime}</p>
+    <div>
+    <div>
+      <div className="top-bar">
+        <a onClick={() => navigate(-1)} className="back-button">
+          <span>&lt;</span> Back to Restaurants
+        </a>
+        <div className="icon-group">
+          <FaBell className="icon" title="Notifications" />
+          <FaUserCircle className="icon" title="Profile" />
+        </div>
+      </div>
+      <hr className="divider" />
+    </div>
+      <div className="menu-container">
+        {loading && <Loader />}
+        {/* Menu List */}
+        <div className="menu-list">
+          <h2>Menus</h2>
+          {menus.map((menu) => (
+            <div
+              key={menu._id}
+              className={`menu-card ${selectedMenu?._id === menu._id ? 'active' : ''}`}
+              onClick={() => setSelectedMenu(menu)}
+            >
+              <div className="menu-header">
+                <div>
+                  <h3>{menu.name}</h3>
+                  <p>{menu.availableTime}</p>
+                </div>
+                <div className="publish-icon">
+                  <button
+                    className={`btn small ${menu.published ? 'published' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTogglePublish(menu._id, menu.published);
+                    }}
+                  >
+                    <BsGlobe /> {menu.published ? 'Unpublish' : 'Publish'}
+                  </button>
+                  {/* Eye Icon (Visible only when published) */}
+                  {menu.published && (
+                    <button
+                      className="btn small eye-icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleShowUrlPopup(menu._id);
+                      }}
+                    >
+                      <BsEye /> View
+                    </button>
+                  )}
+                </div>
               </div>
-              <div
-                className="dots"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuOptions(menuOptions === menu._id ? null : menu._id);
-                }}
-              >
-                <FiMoreVertical />
-                {menuOptions === menu._id && (
+              <div className="dots">
+                <FiMoreVertical
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDropdownOpenId(dropdownOpenId === menu._id ? null : menu._id);
+                  }}
+                />
+                {dropdownOpenId === menu._id && (
                   <div className="dropdown">
-                    <FiEdit /> 
+                    <FiEdit
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMenuForm({ name: menu.name, availableTime: menu.availableTime });
+                        setIsEditingMenu(true);
+                        setShowMenuModal(true);
+                      }}
+                    />
                     <br />
-                    <FiTrash2 onClick={() => handleDeleteMenu(menu._id)} /> 
+                    <FiTrash2 onClick={() => handleDeleteMenu(menu._id)} />
                   </div>
                 )}
               </div>
             </div>
-          </div>
-        ))}
-        <button className="btn full" onClick={() => setShowMenuModal(true)}>
-          + Add Menu
-        </button>
-      </div>
-
-      {/* Category and Items Section */}
-      {selectedMenu && (
-        <div className="category-section">
-          <div className="section-header">
-            <h2>{selectedMenu.name}</h2>
-            <button className="btn" onClick={() => setShowCategoryModal(true)}>
-              + Add Category
-            </button>
-          </div>
-
-          {selectedMenu.categories?.map((category) => (
-            <div key={category._id} className="category-card">
-              <div className="category-title">
-                <div>
-                  <h3>{category.name}</h3>
-                </div>
-                <div className="dots">
-                  <FiMoreVertical
-                    onClick={() =>
-                      setCategoryOptions(categoryOptions === category._id ? null : category._id)
-                    }
-                  />
-                  {categoryOptions === category._id && (
-                    <div className="dropdown">
-                      <FiEdit /> 
-                      <br />
-                      <FiTrash2
-                        onClick={() => handleDeleteCategory(selectedMenu._id, category._id)}
-                      /> 
-                    </div>
-                  )}
-                </div>
-                <button
-                  className="btn small"
-                  onClick={() => {
-                    setCurrentCategoryId(category._id);
-                    setShowItemModal(true);
-                  }}
-                >
-                  + Add Item
-                </button>
-              </div>
-
-              <div className="items-grid">
-                {category.items?.map((item, index) => (
-                  <div className="item-card" key={item._id}> 
-                    <img src={item.imageUrl} alt={item.name} />
-                    <div className="item-content">
-                      <h4>{item.name}</h4>
-                      <p className="price">{item.price}Rs</p>
-                      <p>{item.description}</p>
-                    </div>
-                    <div className="dots">
-                      <FiMoreVertical
-                        onClick={() =>
-                          setItemOptions(itemOptions === item._id ? null : item._id)
-                        }
-                      />
-                      {itemOptions === item._id && (
-                        <div className="dropdown">
-                          <FiEdit /> 
-                          <br />
-                          <FiTrash2
-                            onClick={() =>
-                              handleDeleteItem(selectedMenu._id, category._id, item._id)
-                            }
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           ))}
+          <button className="btn full" onClick={() => setShowMenuModal(true)}>
+            + Add Menu
+          </button>
         </div>
-      )}
 
-      {/* Popups */}
-      <Modal show={showMenuModal} onClose={() => setShowMenuModal(false)} title="Add Menu">
-        <input
-          placeholder="Menu Name"
-          value={menuForm.name}
-          onChange={(e) => setMenuForm({ ...menuForm, name: e.target.value })}
-        />
-        <input
-          placeholder="Available Time"
-          value={menuForm.availableTime}
-          onChange={(e) => setMenuForm({ ...menuForm, availableTime: e.target.value })}
-        />
-        <button className="btn full" onClick={handleAddMenu}>
-          Save
-        </button>
-      </Modal>
+        {/* Category & Item Section */}
+        {selectedMenu && (
+          <div className="category-section">
+            <div className="section-header">
+              <h2>{selectedMenu.name}</h2>
+              <button className="btn" onClick={() => setShowCategoryModal(true)}>
+                + Add Category
+              </button>
+            </div>
 
-      <Modal show={showCategoryModal} onClose={() => setShowCategoryModal(false)} title="Add Category">
-        <input
-          placeholder="Category Name"
-          value={categoryName}
-          onChange={(e) => setCategoryName(e.target.value)}
-        />
-        <button className="btn full" onClick={handleAddCategory}>
-          Save
-        </button>
-      </Modal>
+            {selectedMenu.categories?.map((category) => (
+              <div key={category._id} className="category-card">
+                <div className="category-title">
+                  <h3>{category.name}</h3>
+                  <div className="dots">
+                    <FiMoreVertical
+                      onClick={() => setDropdownOpenId(dropdownOpenId === category._id ? null : category._id)}
+                    />
+                    {dropdownOpenId === category._id && (
+                      <div className="dropdown">
+                        <FiEdit
+                          onClick={() => {
+                            setCategoryName(category.name);
+                            setCurrentCategoryId(category._id);
+                            setIsEditingCategory(true);
+                            setShowCategoryModal(true);
+                          }}
+                        />
+                        <br />
+                        <FiTrash2 onClick={() => handleDeleteCategory(selectedMenu._id, category._id)} />
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    className="btn small"
+                    onClick={() => {
+                      setCurrentCategoryId(category._id);
+                      setShowItemModal(true);
+                    }}
+                  >
+                    + Add Item
+                  </button>
+                </div>
 
-      <Modal show={showItemModal} onClose={() => setShowItemModal(false)} title="Add Item">
-        <input
-          placeholder="Name"
-          value={itemDetails.name}
-          onChange={(e) => setItemDetails({ ...itemDetails, name: e.target.value })}
-        />
-        <input
-          type="text"
-          placeholder="Price"
-          value={itemDetails.price}
-          onChange={(e) => setItemDetails({ ...itemDetails, price: e.target.value })}
-        />
-        <input
-          placeholder="Description"
-          value={itemDetails.description}
-          onChange={(e) => setItemDetails({ ...itemDetails, description: e.target.value })}
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setItemDetails({ ...itemDetails, image: e.target.files[0] })}
-        />
-        <button className="btn full" onClick={handleAddItem}>
-          Save
-        </button>
-      </Modal>
+                <div className="items-grid">
+                  {category.items?.map((item) => (
+                    <div className="item-card" key={item._id}>
+                      <img src={item.imageUrl} alt={item.name} />
+                      <div className="item-content">
+                        <h4>{item.name}</h4>
+                        <p className="price">{item.price} Rs</p>
+                        <p>{item.description}</p>
+                      </div>
+                      <div className="dots">
+                        <FiMoreVertical
+                          onClick={() => setDropdownOpenId(dropdownOpenId === item._id ? null : item._id)}
+                        />
+                        {dropdownOpenId === item._id && (
+                          <div className="dropdown">
+                            <FiEdit
+                              onClick={() => {
+                                setItemDetails({
+                                  name: item.name,
+                                  price: item.price,
+                                  description: item.description,
+                                  image: null,
+                                });
+                                setCurrentCategoryId(category._id);
+                                setCurrentItemId(item._id);
+                                setIsEditingItem(true);
+                                setShowItemModal(true);
+                              }}
+                            />
+                            <br />
+                            <FiTrash2 onClick={() => handleDeleteItem(selectedMenu._id, category._id, item._id)} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Modals */}
+        <Modal show={showMenuModal} onClose={() => setShowMenuModal(false)} title="Menu">
+          <input
+            placeholder="Menu Name"
+            value={menuForm.name}
+            onChange={(e) => setMenuForm({ ...menuForm, name: e.target.value })}
+          />
+          <input
+            placeholder="Available Time"
+            value={menuForm.availableTime}
+            onChange={(e) => setMenuForm({ ...menuForm, availableTime: e.target.value })}
+          />
+          <button className="btn full" onClick={handleAddOrEditMenu}>
+            {isEditingMenu ? 'Update' : 'Save'}
+          </button>
+        </Modal>
+
+        <Modal show={showCategoryModal} onClose={() => setShowCategoryModal(false)} title="Category">
+          <input
+            placeholder="Category Name"
+            value={categoryName}
+            onChange={(e) => setCategoryName(e.target.value)}
+          />
+          <button className="btn full" onClick={handleAddOrEditCategory}>
+            {isEditingCategory ? 'Update' : 'Save'}
+          </button>
+        </Modal>
+
+        <Modal show={showItemModal} onClose={() => setShowItemModal(false)} title="Item">
+          <input
+            placeholder="Name"
+            value={itemDetails.name}
+            onChange={(e) => setItemDetails({ ...itemDetails, name: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="Price"
+            value={itemDetails.price}
+            onChange={(e) => setItemDetails({ ...itemDetails, price: e.target.value })}
+          />
+          <input
+            placeholder="Description"
+            value={itemDetails.description}
+            onChange={(e) => setItemDetails({ ...itemDetails, description: e.target.value })}
+          />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setItemDetails({ ...itemDetails, image: e.target.files[0] })}
+          />
+          <button className="btn full" onClick={handleAddOrEditItem}>
+            {isEditingItem ? 'Update' : 'Save'}
+          </button>
+        </Modal>
+
+
+        {showUrlPopup && (
+          <div className="modal-overlay" onClick={closeUrlPopup}>
+            <div className="modal-content" style={{ width: "500px" }} onClick={(e) => e.stopPropagation()}>
+              <button className="close-btn" onClick={closeUrlPopup}>×</button>
+              <h3 style={{ color: "black" }}>Menu URL</h3>
+              {/* Display the link */}
+              <a
+                href={menuUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn small"
+                style={{ display: 'block', marginBottom: '1rem' }}
+              >
+                {menuUrl}
+              </a>
+              {/* Display the QR code */}
+              <QRCodeCanvas
+                id="qr-code"
+                value={menuUrl}
+                size={400}
+                style={{ marginBottom: '1rem' }}
+              />
+              {/* Download buttons */}
+              <button className="btn small" onClick={handleDownloadQRImage}>
+                Download QR as Image
+              </button>
+              <button className="btn small" onClick={handleDownloadQRPDF}>
+                Download QR as PDF
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
+
+const Loader = () => (
+  <div className="loader">
+    <div className="spinner"></div>
+  </div>
+);
 
 export default MenuCreation;

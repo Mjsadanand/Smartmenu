@@ -1,22 +1,24 @@
 import mongoose from 'mongoose';
 
-const itemSchema = new mongoose.Schema({
+const ItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  price: { type: String, required: true },
+  price: { type: Number, required: true },
   description: { type: String },
   imageUrl: { type: String },
 });
 
-const categorySchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  items: [itemSchema], 
-});
-
-const menuSchema = new mongoose.Schema({
-  restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true },
+const CategorySchema = new mongoose.Schema({
   name: { type: String, required: true }, 
-  availableTime: { type: String, required: true }, 
-  categories: [categorySchema], 
+  items: [ItemSchema],
 });
 
-export default mongoose.model('Menu', menuSchema);
+const MenuSchema = new mongoose.Schema({
+  restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true },
+  name: { type: String, required: true },
+  availableTime: { type: String, required: true },
+  categories: [CategorySchema],
+  published: { type: Boolean, default: false }, // Add published field
+});
+
+const Menu = mongoose.model('Menu', MenuSchema); 
+export default Menu;
