@@ -145,8 +145,11 @@ const MenuCreation = () => {
   };
 
   // Item CRUD
+  const [isSubmitting, setIsSubmitting] = useState(false); // Track submission status
+
   const handleAddOrEditItem = async () => {
     setLoading(true); // Start loading
+    setIsSubmitting(true); // Start submission
     const formData = new FormData();
     Object.entries(itemDetails).forEach(([key, value]) => formData.append(key, value));
 
@@ -166,6 +169,7 @@ const MenuCreation = () => {
       console.error('Error saving item:', err);
     } finally {
       setLoading(false); // Stop loading
+      setIsSubmitting(false); // Stop submission
     }
   };
 
@@ -421,8 +425,8 @@ const MenuCreation = () => {
             accept="image/*"
             onChange={(e) => setItemDetails({ ...itemDetails, image: e.target.files[0] })}
           />
-          <button className="btn full" onClick={handleAddOrEditItem}>
-            {isEditingItem ? 'Update' : 'Save'}
+          <button className="btn full" onClick={handleAddOrEditItem} disabled={isSubmitting}>
+            {isSubmitting ? (isEditingItem ? 'Updating...' : 'Saving...') : isEditingItem ? 'Update' : 'Save'}
           </button>
         </Modal>
 

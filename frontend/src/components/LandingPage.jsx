@@ -41,15 +41,15 @@ const LandingPage = () => {
                     </div>
                 </div>
             </div>
-            <div className="menu-container">
-                <div className="menu-text">
+            <div className="menu-container1">
+                <div className="menu-text1">
                     <h2>ADD YOUR MENU</h2>
                     <p>It has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English.</p>
                 </div>
-                <div className="menu-items">
-                    <div className="menu-item"><img src={menu1} alt="Appetizers" /></div>
-                    <div className="menu-item"><img src={menu2} alt="Mains" /></div>
-                    <div className="menu-item"><img src={menu3} alt="Desserts" /></div>
+                <div className="menu-items1">
+                    <div className="menu-item1"><img src={menu1} alt="Appetizers" /></div>
+                    <div className="menu-item1"><img src={menu2} alt="Mains" /></div>
+                    <div className="menu-item1"><img src={menu3} alt="Desserts" /></div>
                 </div>
             </div>
             <div className="qr-container">

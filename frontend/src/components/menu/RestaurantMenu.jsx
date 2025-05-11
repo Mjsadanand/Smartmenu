@@ -14,7 +14,7 @@ const RestaurantMenu = () => {
     const fetchMenu = async () => {
       try {
         const menuData = await axios.get(`http://localhost:5000/api/menu/${menuId}/view`);
-        console.log('Fetched menu data:', menuData.data);
+        // console.log('Fetched menu data:', menuData.data);
         setMenu(menuData.data);
         setSelectedCategory(menuData.data.categories[0]); // Default to the first category
       } catch (error) {

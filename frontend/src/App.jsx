@@ -1,15 +1,13 @@
-import LandingPage from "./components/LandingPage"
+import LandingPage from "./components/LandingPage";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Register from "./components/Register"
-import Login from "./components/Login"
-import MyRestaurants from "./components/restaurant/MyRestaurants.jsx"
-import MenuCreation from "./components/restaurant/MenuCreation.jsx"
-import RestaurantMenu from "./components/menu/RestaurantMenu.jsx"
+import Register from "./components/Register";
+import Login from "./components/Login";
+import MyRestaurants from "./components/restaurant/MyRestaurants.jsx";
+import MenuCreation from "./components/restaurant/MenuCreation.jsx";
+import RestaurantMenu from "./components/menu/RestaurantMenu.jsx";
 import CookieConsent from "react-cookie-consent";
-import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
 
 function App() {
-
   return (
     <Router>
       <CookieConsent
@@ -33,35 +31,13 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        {/* Protected Routes */}
-        <Route
-          path="/restaurant/:username"
-          element={
-            <ProtectedRoute>
-              <MyRestaurants />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/restaurant/:username/menu/:restaurantId"
-          element={
-            <ProtectedRoute>
-              <MenuCreation />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/menu/:menuId"
-          element={
-            <ProtectedRoute>
-              <RestaurantMenu />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/login" element={<Login />} /> 
+        <Route path="/restaurant/:username" element={<MyRestaurants />} />
+        <Route path="/restaurant/:username/menu/:restaurantId" element={<MenuCreation />} />
+        <Route path="/menu/:menuId" element={<RestaurantMenu />} />
       </Routes>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;

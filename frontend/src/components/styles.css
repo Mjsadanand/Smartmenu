@@ -199,7 +199,7 @@ button:hover {
     }
 }
 
-.menu-container {
+.menu-container1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -207,12 +207,12 @@ button:hover {
     background-color: #f8f7f2;
   }
   
-  .menu-text {
+  .menu-text1 {
     width: 35%;
     font-weight: 900;
   }
   
-  .menu-text h2 {
+  .menu-text1 h2 {
     font-size: 32px;
     font-weight: bold;
     margin-bottom: 15px;
@@ -220,34 +220,34 @@ button:hover {
     font-family: "Poppins", sans-serif;
   }
   
-  .menu-text p {
+  .menu-text1 p {
     font-size: 16px;
     color: #333;
     line-height: 1.5;
     font-family: 'Inter', sans-serif;
   }
   
-  .menu-items {
+  .menu-items1 {
     display: flex;
     gap: 30px;
     width: 60%;
   }
   
-  .menu-item {
+  .menu-item1 {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
   
-  .menu-item img {
+  .menu-item1 img {
     width: 260px;
     height: 400px;
     object-fit: cover;
     border-radius: 10px;
   }
   
-  .menu-item a {
+  .menu-item1 a {
     text-decoration: none;
     font-weight: bold;
     margin-top: 10px;
