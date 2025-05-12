@@ -9,6 +9,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { jsPDF } from 'jspdf';
 import { useNavigate } from "react-router-dom";
 import { FaBell, FaUserCircle } from "react-icons/fa";
+import { createRoot } from 'react-dom/client'; // Import createRoot from react-dom/client
 
 const MenuCreation = () => {
   const { restaurantId } = useParams();
@@ -204,6 +205,49 @@ const MenuCreation = () => {
     const pdf = new jsPDF();
     pdf.addImage(pngUrl, 'PNG', 10, 10, 180, 180); // Adjust size and position
     pdf.save('menu-qr-code.pdf');
+  };
+
+  const handleUploadQRToCloudinary = async () => {
+    const menuUrl = `${window.location.origin}/menu/${selectedMenu._id}`; // Correct menu URL
+
+    // Create a temporary container to render the QR code
+    const tempDiv = document.createElement('div');
+    document.body.appendChild(tempDiv);
+
+    // Render the QR code temporarily in the DOM using createRoot
+    const root = createRoot(tempDiv);
+    root.render(<QRCodeCanvas value={menuUrl} size={300} />);
+
+    // Wait for the QR code to render and extract its data URL
+    await new Promise((resolve) => setTimeout(resolve, 100)); // Wait for the QR code to render
+    const canvas = tempDiv.querySelector('canvas');
+
+    if (!canvas) {
+      console.error('QR code canvas not found');
+      document.body.removeChild(tempDiv); // Clean up the temporary container
+      return;
+    }
+
+    const qrImage = canvas.toDataURL('image/png'); // Convert the QR code to a data URL
+
+    // Clean up the temporary container
+    root.unmount(); // Unmount the React component
+    document.body.removeChild(tempDiv);
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/menu/upload-qr', {
+        restaurantId: selectedMenu.restaurantId,
+        menuId: selectedMenu._id,
+        qrImage,
+        redirectUrl: menuUrl, // Pass the correct redirect URL to the backend
+      });
+
+      console.log('QR code uploaded successfully:', response.data);
+      alert('QR code uploaded to Cloudinary!');
+    } catch (error) {
+      console.error('Error uploading QR code:', error);
+      alert('Failed to upload QR code.');
+    }
   };
 
   return (
@@ -459,6 +503,9 @@ const MenuCreation = () => {
               </button>
               <button className="btn small" onClick={handleDownloadQRPDF}>
                 Download QR as PDF
+              </button>
+              <button className="btn small" onClick={handleUploadQRToCloudinary}>
+                Make Public
               </button>
             </div>
           </div>

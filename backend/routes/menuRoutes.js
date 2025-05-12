@@ -58,6 +58,32 @@ router.get('/:restaurantId', async (req, res) => {
   }
 });
 
+// Update a menu
+router.put('/:menuId', async (req, res) => {
+  const { menuId } = req.params;
+  const { name, availableTime } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(menuId)) {
+    return res.status(400).json({ message: 'Invalid menu ID' });
+  }
+
+  try {
+    const updatedMenu = await Menu.findByIdAndUpdate(
+      menuId,
+      { name, availableTime },
+      { new: true }
+    );
+
+    if (!updatedMenu) {
+      return res.status(404).json({ message: 'Menu not found' });
+    }
+
+    res.json(updatedMenu);
+  } catch (err) {
+    console.error('Error updating menu:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 // Add a category to a menu
 router.post('/:menuId/category', async (req, res) => {
@@ -314,6 +340,61 @@ router.get('/:menuId/restaurant', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Failed to fetch restaurant details' });
+  }
+});
+
+// Upload QR code to Cloudinary and store metadata
+router.post('/upload-qr', async (req, res) => {
+  const { restaurantId, menuId, qrImage, redirectUrl } = req.body;
+
+  try {
+    // Upload QR code image to Cloudinary
+    const uploadResponse = await cloudinary.uploader.upload(qrImage, {
+      folder: 'qr_codes',
+    });
+
+    // Store the QR code URL and redirect URL in the menu document
+    const menu = await Menu.findById(menuId);
+    if (!menu) {
+      return res.status(404).json({ message: 'Menu not found' });
+    }
+
+    menu.qrCode = {
+      imageUrl: uploadResponse.secure_url, // Cloudinary URL of the QR code image
+      redirectUrl, // Store the redirect URL
+      restaurantId,
+    };
+
+    await menu.save();
+
+    res.status(200).json({ message: 'QR code uploaded successfully', qrCode: menu.qrCode });
+  } catch (error) {
+    console.error('Error uploading QR code:', error);
+    res.status(500).json({ message: 'Failed to upload QR code' });
+  }
+});
+
+// Get QR code for a specific restaurant
+router.get('/restaurant/:restaurantId/qr', async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+
+    // Find the first menu for the restaurant
+    const menu = await Menu.findOne({ restaurantId, qrCode: { $exists: true } });
+
+    if (!menu || !menu.qrCode || !menu.qrCode.redirectUrl) {
+      return res.status(404).json({ msg: 'QR code not found for this restaurant' });
+    }
+
+    // Return the QR code URL and restaurant details
+    const restaurant = await Restaurant.findById(restaurantId);
+    res.json({
+      qrCode: menu.qrCode, // Include the redirect URL
+      restaurant,
+    });
+  } catch (error) {
+    console.error('Error fetching QR code:', error);
+    res.status(500).json({ msg: 'Failed to fetch QR code' });
   }
 });
 

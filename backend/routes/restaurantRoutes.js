@@ -42,6 +42,17 @@ const authenticate = (req, res, next) => {
 // Protect all routes with the combined authentication middleware
 router.use(authenticate);
 
+// Get all restaurants
+router.get('/', async (req, res) => {
+  try {
+    const restaurants = await Restaurant.find(); // Fetch all restaurants
+    res.json(restaurants);
+  } catch (err) {
+    console.error('Error fetching restaurants:', err);
+    res.status(500).json({ msg: 'Failed to fetch restaurants' });
+  }
+});
+
 // Add restaurant
 router.post('/add', upload.single('image'), async (req, res) => {
   try {

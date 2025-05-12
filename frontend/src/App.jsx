@@ -6,6 +6,7 @@ import MyRestaurants from "./components/restaurant/MyRestaurants.jsx";
 import MenuCreation from "./components/restaurant/MenuCreation.jsx";
 import RestaurantMenu from "./components/menu/RestaurantMenu.jsx";
 import CookieConsent from "react-cookie-consent";
+import Hotel from "./components/Hotel.jsx";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
         <Route path="/restaurant/:username" element={<MyRestaurants />} />
         <Route path="/restaurant/:username/menu/:restaurantId" element={<MenuCreation />} />
         <Route path="/menu/:menuId" element={<RestaurantMenu />} />
+        <Route path="/hotel" element={<Hotel />} />
       </Routes>
     </Router>
   );

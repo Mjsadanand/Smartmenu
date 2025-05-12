@@ -121,22 +121,23 @@
 /* Dropdown styles for the 3 dots */
 .menu-card .dropdown {
   position: absolute;
-  top: 30px; /* Position below the 3 dots */
-  right: 10px; /* Align with the 3 dots */
+  top: 20px; /* Position below the three dots */
+  left: 5px; /* Align with the three dots */
   background-color: #2a2a2a;
   border: 1px solid #444;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 20; /* Ensure it appears above other elements */
   padding: 5px 0;
-  display: none; /* Initially hidden */
+  display: block; /* Ensure the dropdown is visible */
 }
 
 /* Dropdown items */
 .menu-card .dropdown div {
-  padding: 10px 15px;
+  padding: 20px 15px;
   cursor: pointer;
   transition: background 0.2s;
+  
 }
 
 .menu-card .dropdown div:hover {
@@ -364,7 +365,6 @@
   text-decoration: underline;
 }
 
-
 /* Responsive Tweaks */
 @media (max-width: 768px) {
   .modal-content {
@@ -389,4 +389,35 @@
   .modal-content h3 {
     font-size: 1.3rem;
   }
+}
+
+.field-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.speech-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.language-select {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.mic-icon {
+  font-size: 20px;
+  color: #007bff;
+  cursor: pointer;
+}
+
+.mic-icon:hover {
+  color: #0056b3;
 }

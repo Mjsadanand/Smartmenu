@@ -6,6 +6,64 @@
   background-color: #111;
 }
 
+/* Base styles for light theme */
+.restaurant-container.light {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.restaurant-container.light .restaurant-header {
+  color: #ffffff;
+}
+
+.restaurant-container.light .category-button {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.restaurant-container.light .category-button.active {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Base styles for dark theme */
+.restaurant-container.dark {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+.restaurant-container.dark .restaurant-header {
+  color: #ffffff;
+}
+
+.restaurant-container.dark .category-button {
+  background-color: #333;
+  color: #fff;
+}
+
+.restaurant-container.dark .category-button.active {
+  background-color: #fff;
+  color: #333;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 24px;
+  padding: 10px 15px;
+  background-color: transparent;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.theme-toggle:hover{
+  background-color: transparent;
+}
+
 /* Restaurant header with background image */
 .restaurant-header {
   position: relative;

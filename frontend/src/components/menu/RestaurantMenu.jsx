@@ -9,12 +9,12 @@ const RestaurantMenu = () => {
   const [menu, setMenu] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null); // Track selected category
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isDarkMode, setIsDarkMode] = useState(false); // Track theme
 
   useEffect(() => {
     const fetchMenu = async () => {
       try {
         const menuData = await axios.get(`http://localhost:5000/api/menu/${menuId}/view`);
-        // console.log('Fetched menu data:', menuData.data);
         setMenu(menuData.data);
         setSelectedCategory(menuData.data.categories[0]); // Default to the first category
       } catch (error) {
@@ -50,10 +50,17 @@ const RestaurantMenu = () => {
     setSelectedItem(null);
   };
 
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode); // Toggle theme
+  };
+
   if (!restaurant || !menu) return <div>Loading...</div>;
 
   return (
-    <div className="restaurant-container">
+    <div className={`restaurant-container ${isDarkMode ? 'dark' : 'light'}`}>
+      <button className="theme-toggle" onClick={toggleTheme}>
+        {isDarkMode ? '☀️' : '🌑'}
+      </button>
       <div
         className="restaurant-header"
         style={{ backgroundImage: `url(${restaurant.imageUrl})` }}

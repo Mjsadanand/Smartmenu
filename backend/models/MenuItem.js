@@ -17,7 +17,12 @@ const MenuSchema = new mongoose.Schema({
   name: { type: String, required: true },
   availableTime: { type: String, required: true },
   categories: [CategorySchema],
-  published: { type: Boolean, default: false }, // Add published field
+  published: { type: Boolean, default: false },
+  qrCode: {
+    imageUrl: { type: String }, // Cloudinary URL of the QR code image
+    redirectUrl: { type: String }, // URL to redirect when the QR code is scanned
+    restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant' },
+  },
 });
 
 const Menu = mongoose.model('Menu', MenuSchema); 

@@ -10,7 +10,7 @@ import qr from '../assets/QR1.jpg';
 
 const LandingPage = () => {
     const navigateToSignup = () => {
-        window.location.href = "/signup";
+        window.location.href = "/register";
     };
 
     return (

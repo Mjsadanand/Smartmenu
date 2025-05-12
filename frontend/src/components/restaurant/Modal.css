@@ -20,7 +20,7 @@
     max-width: 400px;
   }
   
-  .modal-box input {
+  .modal-box input{
     width: 100%;
     margin-bottom: 1rem;
     padding: 0.5rem;
@@ -29,7 +29,15 @@
     border-radius: 0.5rem;
     color: white;
   }
-  
+  .modal-box textarea{
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: #2a2020;
+    border: none;
+    border-radius: 0.5rem;
+    color: white;
+  }
   .btn.full {
     width: 100%;
   }
@@ -38,4 +46,5 @@
     margin-top: 1rem;
     background: #3a2a2a;
   }
+  
   
